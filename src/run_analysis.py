@@ -26,23 +26,31 @@ def plot_bucket_bar(summary: pd.DataFrame, horizon: int, output_path: str):
     summary = summary.set_index("size_bucket")
     summary = summary.reindex(order).dropna().reset_index()
 
-    means = summary["mean"].values
-    counts = summary["count"].values
     labels = summary["size_bucket"].values
+    counts = summary["count"].values
+
+    # plot in percent for readability
+    means_pct = (summary["mean"] * 100).values
+
+    # optional uncertainty: standard error if std exists
+    yerr = None
+    if "std" in summary.columns:
+        std_pct = (summary["std"] * 100).values
+        yerr = std_pct / (counts ** 0.5)
 
     fig, ax = plt.subplots(figsize=(6, 4))
-    ax.bar(labels, means)
+    ax.bar(labels, means_pct, yerr=yerr, capsize=4 if yerr is not None else 0)
     ax.axhline(0, linewidth=1)
-    ax.set_ylabel(f"Mean {horizon}-Day Return")
-    ax.set_title(f"Mean {horizon}-Day Forward Return\nLarge vs Normal Insider Buys")
-    means = summary["mean"] * 100
-    ax.set_ylabel("Mean 10-Day Return (%)")
 
-    for x, y, n in zip(labels, means, counts):
-        ax.text(x, y, f"n={n}", ha="center", va="bottom", fontsize=9)
+    ax.set_ylabel(f"Mean {horizon}-Day Return (%)")
+    ax.set_title(f"Mean {horizon}-Day Forward Return\nLarge vs Normal Insider Buys")
+
+    for x, y, n in zip(labels, means_pct, counts):
+        va = "bottom" if y >= 0 else "top"
+        ax.text(x, y, f"n={n}", ha="center", va=va, fontsize=9)
 
     fig.tight_layout()
-    fig.savefig(output_path)
+    fig.savefig(output_path, dpi=200)
     plt.close(fig)
 
 
@@ -79,11 +87,14 @@ def plot_equity_curve(results: pd.DataFrame, horizon: int, output_path: str):
     mdd = max_drawdown(equity)
 
     fig, ax = plt.subplots(figsize=(8, 4))
-    fig, ax = plt.subplots(figsize=(8, 4))
     ax.plot(equity.index, equity.values)
     ax.set_xlabel("Date")
     ax.set_ylabel("Cumulative Return")
     ax.set_title("Equity Curve – Calendar-Time Strategy")
+    ax.text(
+    0.01, 0.02, f"MDD: {mdd:.2%}",
+    transform=ax.transAxes, ha="left", va="bottom", fontsize=9
+)
     ax.grid(True, linewidth=0.5)
 
     fig.tight_layout()
@@ -97,6 +108,7 @@ def plot_return_distribution(results: pd.DataFrame, horizon: int, output_path: s
 
     rets_pct = rets * 100
     lo, hi = rets_pct.quantile([0.01, 0.99])
+
 
     fig, ax = plt.subplots(figsize=(6, 4))
     ax.hist(rets_pct, bins=40)
