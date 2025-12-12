@@ -24,7 +24,7 @@ Instead of treating all insider buys the same, the system:
 - Suggests insiders who buy more than usual for their own stock tend to be directionally correct
 - Difference is small but statistically meaningful given large sample size (n ≈ 16,000)
 
-2. 10-Day Return Distribution
+## 2. 10-Day Return Distribution
 
 ![Daily SLeep Index](charts/return_dist.png)
 
@@ -35,7 +35,7 @@ Instead of treating all insider buys the same, the system:
 - Left tail exists → insiders are not perfect and sometimes buy ahead of declines
 - Supports the idea that insider activity is a weak but exploitable signal
 
-3. Calendar-Time Equity Curve
+## 3. Calendar-Time Equity Curve
 
 ![Daily SLeep Index](charts/equity_curve.png)
 
