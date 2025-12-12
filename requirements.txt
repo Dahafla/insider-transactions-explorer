@@ -1,0 +1,8 @@
+pandas
+sqlalchemy
+python-dotenv
+yfinance
+psycopg2-binary
+streamlit
+matplotlib
+  
